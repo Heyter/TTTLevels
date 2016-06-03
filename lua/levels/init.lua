@@ -43,10 +43,10 @@ local function sendXPUpdates()
 	xpUpdateBuffer = {}
 end
 local function tttEndRound(result)
-	local winteam = (result==WIN_TRAITOR and TEAM_TRAITOR) or (result == WIN_INNOCENT and TEAM_INNOCENT)
-	for _,v in pairs(team.GetPlayers(winteam)) do
-		if not v:Alive() then continue end
-		givePlayerXP(v:SteamID(), winteam==TEAM_TRAITOR and xpForTWin or xpForInnoWin)
+	local winteam = (result==WIN_TRAITOR and ROLE_TRAITOR) or (result == WIN_INNOCENT and ROLE_INNOCENT)
+	for _,v in pairs(player.GetHumans()) do
+		if not v:Alive() and v:GetRole() != winteam then continue end
+		givePlayerXP(v:SteamID(), winteam==ROLE_TRAITOR and xpForTWin or xpForInnoWin)
 	end
 	sendXPUpdates()
 end
@@ -103,10 +103,10 @@ local function takePlayerXP(steamid, amt)
 end
 hook.Add("PlayerDeath", "PHXP_PlayerDeath", function(vic, inf, att)
 	if vic == att then return end
-	if att:Team() == vic:Team() then 
+	if att:GetRole() == vic:GetRole() then 
 		if xpLossForTK > 0 then
 			takePlayerXP(att:SteamID(),xpLossForTK)
 		end
 	end
-	givePlayerXP(att:SteamID(), att:Team() == TEAM_TRAITOR and xpForTKill or xpForInnoKill)
+	givePlayerXP(att:SteamID(), att:GetRole() == ROLE_TRAITOR and xpForTKill or xpForInnoKill)
 end)
