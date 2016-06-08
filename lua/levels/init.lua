@@ -1,6 +1,6 @@
 local sql = sql
-util.AddNetworkString("PHXP_GetXP")
-util.AddNetworkString("PHXP_AddXP")
+util.AddNetworkString("TTTXP_GetXP")
+util.AddNetworkString("TTTXP_AddXP")
 local function sqlQuery(q)
 	local res = sql.Query(q)
 	if res==false then
@@ -9,20 +9,20 @@ local function sqlQuery(q)
 	end
 	return res
 end
-if not sql.TableExists("PHXP") then
-	sqlQuery("CREATE TABLE PHXP ( SteamID TEXT, XP INT, LEVEL INT, Unique(SteamID))")
+if not sql.TableExists("TTTXP") then
+	sqlQuery("CREATE TABLE TTTXP ( SteamID TEXT, XP INT, LEVEL INT, Unique(SteamID))")
 end
 local function createPlayer(steamid)
-	sqlQuery("INSERT INTO PHXP (SteamID, XP, LEVEL) VALUES ('"..steamid.."', 0, 1)")
+	sqlQuery("INSERT INTO TTTXP (SteamID, XP, LEVEL) VALUES ('"..steamid.."', 0, 1)")
 end
 local function sendXP(ply)
-	net.Start("PHXP_GetXP")
+	net.Start("TTTXP_GetXP")
 		net.WriteInt(getPlayerXP(ply:SteamID()), 32)
 		net.WriteInt(getPlayerLevel(ply:SteamID()), 32)
 	net.Send(ply)
 end
-hook.Add("PlayerAuthed", "PHXP_Auth", function (ply, st, a)
-	if sqlQuery("SELECT * FROM PHXP WHERE SteamID = '"..st.."'") then
+hook.Add("PlayerAuthed", "TTTXP_Auth", function (ply, st, a)
+	if sqlQuery("SELECT * FROM TTTXP WHERE SteamID = '"..st.."'") then
 		sendXP(ply)
 		return
 	end
@@ -36,7 +36,7 @@ local function sendXPUpdate(ply, amt)
 end
 local function sendXPUpdates()
 	for ply,amt in pairs(xpUpdateBuffer) do
-		net.Start("PHXP_AddXP")
+		net.Start("TTTXP_AddXP")
 			net.WriteInt(amt, 16)
 		net.Send(ply)
 	end
@@ -50,7 +50,7 @@ local function tttEndRound(result)
 	end
 	sendXPUpdates()
 end
-hook.Add("TTTEndRound","PHXP_SendXPUpdates", tttEndRound)
+hook.Add("TTTEndRound","TTTXP_SendXPUpdates", tttEndRound)
 local function checkLevel(steamid)
 	local xp = getPlayerXP(steamid) or 0
 	if xp >= xpForLevel then
@@ -62,11 +62,11 @@ local function checkLevel(steamid)
 	end
 end
 local function setPlayerXP(steamid, amt)
-	local res = sqlQuery("UPDATE PHXP SET XP="..amt.." WHERE SteamID='"..steamid.."'")
+	local res = sqlQuery("UPDATE TTTXP SET XP="..amt.." WHERE SteamID='"..steamid.."'")
 	checkLevel(steamid, amt)
 end
 local function getPlayerLevel(steamid)
-	local res = sqlQuery("SELECT LEVEL FROM PHXP WHERE SteamID='"..steamid.."'")
+	local res = sqlQuery("SELECT LEVEL FROM TTTXP WHERE SteamID='"..steamid.."'")
 	if res == false then
 		debugprint("Player didn't exist during getlevel: "..steamid)
 		createPlayer(steamid)
@@ -75,18 +75,18 @@ local function getPlayerLevel(steamid)
 	return tonumber(res) or 1
 end
 local function addPlayerLevel(steamid)
-	sql.Query("UPDATE PHXP SET LEVEL="..(getPlayerLevel(steamid)+1).." WHERE SteamID='"..steamid.."'")
+	sql.Query("UPDATE TTTXP SET LEVEL="..(getPlayerLevel(steamid)+1).." WHERE SteamID='"..steamid.."'")
 end
 local function takePlayerLevel(steamid)
-	sql.Query("UPDATE PHXP SET LEVEL="..(getPlayerLevel(steamid)-1).." WHERE SteamID='"..steamid.."'")
+	sql.Query("UPDATE TTTXP SET LEVEL="..(getPlayerLevel(steamid)-1).." WHERE SteamID='"..steamid.."'")
 end
 local function getPlayerXP(steamid)
-	local res = sqlQuery("SELECT XP FROM PHXP WHERE SteamID='"..steamid.."'")
+	local res = sqlQuery("SELECT XP FROM TTTXP WHERE SteamID='"..steamid.."'")
 	if res == false then
 		local err = sql.LastError()
 		if string.find(err, "exist") then
 			createPlayer(steamid)
-			return sqlQuery("SELECT XP FROM PHXP WHERE SteamID='"..steamid.."'") or 0
+			return sqlQuery("SELECT XP FROM TTTXP WHERE SteamID='"..steamid.."'") or 0
 		end
 	end
 	return tonumber(res) or 0
@@ -101,7 +101,7 @@ local function takePlayerXP(steamid, amt)
 	local xp = getPlayerXP( steamid ) or 0
 	setPlayerXP( steamid, xp-amt)
 end
-hook.Add("PlayerDeath", "PHXP_PlayerDeath", function(vic, inf, att)
+hook.Add("PlayerDeath", "TTTXP_PlayerDeath", function(vic, inf, att)
 	if vic == att then return end
 	if att:GetRole() == vic:GetRole() then 
 		if xpLossForTK > 0 then
