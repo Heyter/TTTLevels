@@ -1,7 +1,6 @@
 xpForLevel = 100
 xpForTKill = 10
 xpForInnoKill = 10
-xpPerSurvival = 20
 xpLossForTK = 0 // Set to anything above 0 to lose XP
 
 // Pointshop On Levelup, Remove /* and */ to enable
