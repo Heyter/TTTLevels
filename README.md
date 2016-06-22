@@ -2,7 +2,7 @@
 Adds a level system to Trouble in Terrorist Town for Garry's Mod.
 
 ##Customization
-In the shared file:
+In the [`shared.lua`](https://github.com/end360/TTTLevels/blob/master/lua/levels/shared.lua) file:
 
   - `xpForLevel` This is the amount of experience it takes to level up
 
