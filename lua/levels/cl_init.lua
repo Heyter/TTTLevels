@@ -1,5 +1,5 @@
-myXP = myXP or 0
-myLevel = myLevel or 1
+local myXP = myXP or 0
+local myLevel = myLevel or 1
 local levelColors = {
 	Color(235, 0, 0),
 	Color(0, 235, 0),
@@ -15,7 +15,7 @@ net.Receive("TTTXP_GetXP", function(len)
 		myLevel = net.ReadInt(32)
 end)
 net.Receive("TTTXP_AddXP", function(len)
-		local toadd = net.ReadInt(16)
+		local toadd = net.ReadInt(32)
 		addXP(toadd)
 end)
 local w = ScrW()*.2604167
