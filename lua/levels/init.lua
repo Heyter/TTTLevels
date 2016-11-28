@@ -37,7 +37,7 @@ end
 local function sendXPUpdates()
 	for ply,amt in pairs(xpUpdateBuffer) do
 		net.Start("TTTXP_AddXP")
-			net.WriteInt(amt, 16)
+			net.WriteInt(amt, 32)
 		net.Send(ply)
 	end
 	xpUpdateBuffer = {}
